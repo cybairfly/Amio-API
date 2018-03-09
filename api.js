@@ -1,5 +1,6 @@
 const cfg = require('./cfg');
 const axios = require('axios');
+const ip = require('public-ip');
 
 const logSyntax = () => console.log(`\nAsync/await:\n`);
 
@@ -13,23 +14,23 @@ const getContacts = (channel) => {
   return axios(config);
 }
 
-const postMessage = (id, message) => {
-  const date = new Date(Date());
-  const hours = `0${date.getHours()}`.slice(-2);
-  const minutes = `0${date.getMinutes()}`.slice(-2);
-  const seconds = `0${date.getSeconds()}`.slice(-2);
-  const time = `Ahoj ${hours}:${minutes}:${seconds}`;
+const postMessage = (id, message, payload) => {
+  // const date = new Date(Date());
+  // const hours = `0${date.getHours()}`.slice(-2);
+  // const minutes = `0${date.getMinutes()}`.slice(-2);
+  // const seconds = `0${date.getSeconds()}`.slice(-2);
+  // const time = `Ahoj ${hours}:${minutes}:${seconds}`;
 
   message.contact.id = `${id}`;
-  message.content.payload = time;
+  message.content.payload = payload;
 
   const config = cfg.getConfig(`messages`, 'post');
   config.data = JSON.stringify(message);
   return axios(config);
 }
 
-const messageAll = async (ids, message) => {
-  let messages = await Promise.all(ids.map(id => postMessage(id, message)));
+const messageAll = async (ids, message, payload) => {
+  let messages = await Promise.all(ids.map(id => postMessage(id, message, payload)));
   console.log(messages.map(message => message.data));
 }
 
@@ -49,12 +50,12 @@ const logStatus = async channel => {
   }
 }
 
-const postMessages = async (channel, message) => {
+const postMessages = async (channel, message, payload) => {
   try {
     const contacts = await getContacts(channel);
     //let ids = contacts.data.map(contact => contact.id);
     let ids = ['1803539683052785'];
-    messageAll(ids, message);
+    messageAll(ids, message, payload);
   }
   catch (e) {
     console.log(e);
